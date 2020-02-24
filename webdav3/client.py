@@ -867,7 +867,8 @@ class WebDavXmlUtils:
             tree = etree.fromstring(content)
             return [Urn(
                 Urn.separate + unquote(urlsplit(tree.find('{DAV:}href').text).path),
-                directory=WebDavXmlUtils.response_tree_is_directory(tree)
+                directory=WebDavXmlUtils.response_tree_is_directory(tree),
+                last_modified=tree.find('.//{DAV:}getlastmodified').text
             ) for tree in tree.findall(".//{DAV:}response")]
         except etree.XMLSyntaxError:
             return list()

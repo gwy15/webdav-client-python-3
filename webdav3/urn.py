@@ -11,7 +11,7 @@ class Urn(object):
 
     separate = "/"
 
-    def __init__(self, path, directory=False):
+    def __init__(self, path, directory=False, last_modified=None):
 
         self._path = quote(path)
         expressions = "/\.+/", "/+"
@@ -23,6 +23,8 @@ class Urn(object):
 
         if directory and not self._path.endswith(Urn.separate):
             self._path = "{begin}{end}".format(begin=self._path, end=Urn.separate)
+
+        self._last_modified = last_modified
 
     def __str__(self):
         return self.path()
@@ -65,3 +67,6 @@ class Urn(object):
     def compare_path(path_a, href):
         unqouted_path = Urn.separate + unquote(urlsplit(href).path)
         return Urn.normalize_path(path_a) == Urn.normalize_path(unqouted_path)
+
+    def last_modified(self):
+        return self._last_modified
