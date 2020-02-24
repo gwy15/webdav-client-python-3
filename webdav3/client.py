@@ -851,16 +851,24 @@ class WebDavXmlUtils:
         pass
 
     @staticmethod
+    def response_tree_is_directory(tree):
+        content_type = tree.find('.//{DAV:}getcontenttype')
+        return content_type is not None and content_type.text == 'httpd/unix-directory'
+
+    @staticmethod
     def parse_get_list_response(content):
         """Parses of response content XML from WebDAV server and extract file and directory names.
 
         :param content: the XML content of HTTP response from WebDAV server for getting list of files by remote path.
         :return: list of extracted file or directory names.
         """
+
         try:
             tree = etree.fromstring(content)
-            hrees = [Urn.separate + unquote(urlsplit(hree.text).path) for hree in tree.findall(".//{DAV:}href")]
-            return [Urn(hree) for hree in hrees]
+            return [Urn(
+                Urn.separate + unquote(urlsplit(tree.find('{DAV:}href').text).path),
+                directory=WebDavXmlUtils.response_tree_is_directory(tree)
+            ) for tree in tree.findall(".//{DAV:}response")]
         except etree.XMLSyntaxError:
             return list()
 
